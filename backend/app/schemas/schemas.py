@@ -1,10 +1,9 @@
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, validator
 from typing import Optional, List
 from datetime import datetime
 from app.models.models import OrderStatus
 
 
-# ── Product Schemas ──────────────────────────────────────────────────
 class ProductBase(BaseModel):
     name: str
     sku: str
@@ -27,10 +26,9 @@ class ProductOut(ProductBase):
     id: int
     created_at: datetime
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
-# ── Customer Schemas ─────────────────────────────────────────────────
 class CustomerBase(BaseModel):
     name: str
     email: str
@@ -49,16 +47,14 @@ class CustomerOut(CustomerBase):
     id: int
     created_at: datetime
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
-# ── Order Schemas ────────────────────────────────────────────────────
 class OrderItemCreate(BaseModel):
     product_id: int
     quantity: int
 
-    @field_validator("quantity")
-    @classmethod
+    @validator("quantity")
     def quantity_must_be_positive(cls, v):
         if v <= 0:
             raise ValueError("Quantity must be greater than 0")
@@ -71,7 +67,7 @@ class OrderItemOut(BaseModel):
     unit_price: float
     product: ProductOut
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class OrderCreate(BaseModel):
     customer_id: int
@@ -92,7 +88,7 @@ class OrderOut(BaseModel):
     customer: CustomerOut
     items: List[OrderItemOut]
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class OrderSummary(BaseModel):
     id: int
@@ -102,9 +98,8 @@ class OrderSummary(BaseModel):
     created_at: datetime
     customer: CustomerOut
     class Config:
-        from_attributes = True
+        orm_mode = True
 
-# ── Stats Schema ─────────────────────────────────────────────────────
 class DashboardStats(BaseModel):
     total_products: int
     total_customers: int
